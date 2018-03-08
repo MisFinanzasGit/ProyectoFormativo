@@ -1,0 +1,439 @@
+-- phpMyAdmin SQL Dump
+-- version 4.7.0
+-- https://www.phpmyadmin.net/
+--
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 08-03-2018 a las 19:51:31
+-- Versión del servidor: 10.1.22-MariaDB
+-- Versión de PHP: 7.1.4
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Base de datos: `misfinanzas`
+--
+
+DELIMITER $$
+--
+-- Procedimientos
+--
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertarUsuario` (IN `usu_Nombre` VARCHAR(45) CHARSET utf8, IN `usu_Apellido` VARCHAR(45) CHARSET utf8, IN `usu_Correo` VARCHAR(45) CHARSET utf8, IN `usu_Password` VARCHAR(155) CHARSET utf8, IN `usu_Sexo` CHAR(1) CHARSET utf8, IN `usu_FNA` DATE)  INSERT INTO usuario (usu_Nombre,usu_Apellido,usu_Correo,usu_Password,usu_Sexo,usu_FNA) VALUES (usu_Nombre,usu_Apellido,usu_Correo,usu_Password,usu_Sexo,usu_FNA)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCuenta` (IN `cuenta_nom` VARCHAR(11) CHARSET utf8, IN `cuenta_tipo` INT, IN `cuenta_usuario` INT, IN `cuenta_monto` DOUBLE, IN `cuenta_saldo` DOUBLE)  INSERT INTO `cuenta` (`cuenta_nom`, `cuenta_tipo`, `cuenta_usuario`, `cuenta_monto`, `cuenta_saldo`) VALUES (cuenta_nom,cuenta_tipo,cuenta_usuario,cuenta_monto,cuenta_saldo)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `JoinListerMeta` ()  SELECT meta_nom,tipo_meta.tipo_meta as 'Tipo Meta/Plazo',metafinanciera.meta_costo FROM metafinanciera inner join tipo_meta on metafinanciera.Idmetafinanciera=tipo_meta.idtipo_meta$$
+
+DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `categoria`
+--
+
+CREATE TABLE `categoria` (
+  `idCategoria` int(11) NOT NULL,
+  `categoria_tipo` varchar(20) NOT NULL,
+  `categoria_icon` varchar(200) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `categoria`
+--
+
+INSERT INTO `categoria` (`idCategoria`, `categoria_tipo`, `categoria_icon`) VALUES
+(1, 'Alimentacion', NULL),
+(2, 'Salud', NULL),
+(3, 'Transporte', NULL),
+(4, 'Educacion', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `cuenta`
+--
+
+CREATE TABLE `cuenta` (
+  `idCuenta` int(11) NOT NULL,
+  `cuenta_nom` varchar(20) NOT NULL,
+  `cuenta_tipo` int(11) NOT NULL,
+  `cuenta_usuario` int(11) NOT NULL,
+  `cuenta_monto` double NOT NULL,
+  `cuenta_saldo` double NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `cuenta`
+--
+
+INSERT INTO `cuenta` (`idCuenta`, `cuenta_nom`, `cuenta_tipo`, `cuenta_usuario`, `cuenta_monto`, `cuenta_saldo`) VALUES
+(1, 'Disponible', 1, 1, 0, 0),
+(3, 'Ahorros', 2, 8, 2000, 2000),
+(4, 'Ahorros2', 2, 1, 6000, 6000);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `gasto`
+--
+
+CREATE TABLE `gasto` (
+  `idGasto` int(11) NOT NULL,
+  `gasto_nombre` varchar(20) NOT NULL,
+  `gasto_descripcion` varchar(200) DEFAULT NULL,
+  `gasto_presupuesto` int(11) NOT NULL,
+  `fecha_inicial` date DEFAULT NULL,
+  `fecha_final` date DEFAULT NULL,
+  `gasto_categoria` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `gasto`
+--
+
+INSERT INTO `gasto` (`idGasto`, `gasto_nombre`, `gasto_descripcion`, `gasto_presupuesto`, `fecha_inicial`, `fecha_final`, `gasto_categoria`) VALUES
+(1, 'Alimentacion', 'este es un gasto', 1, NULL, NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `metafinanciera`
+--
+
+CREATE TABLE `metafinanciera` (
+  `Idmetafinanciera` int(11) NOT NULL,
+  `meta_nom` varchar(20) NOT NULL,
+  `fecha_inicial` date NOT NULL,
+  `fecha_final` date NOT NULL,
+  `meta_costo` double NOT NULL,
+  `meta_usuario` int(11) NOT NULL,
+  `meta_tipo` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `metafinanciera`
+--
+
+INSERT INTO `metafinanciera` (`Idmetafinanciera`, `meta_nom`, `fecha_inicial`, `fecha_final`, `meta_costo`, `meta_usuario`, `meta_tipo`) VALUES
+(1, 'Viaje', '2018-02-04', '2018-02-10', 100000, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `movimiento`
+--
+
+CREATE TABLE `movimiento` (
+  `idMovimiento` int(10) UNSIGNED NOT NULL,
+  `movi_nom` varchar(20) NOT NULL,
+  `movi_descripcion` varchar(200) DEFAULT NULL,
+  `movi_monto` double NOT NULL,
+  `movi_fecha` date NOT NULL,
+  `movi_tipo` int(11) NOT NULL,
+  `movi_gasto` int(11) NOT NULL,
+  `movi_cuenta` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `movimiento`
+--
+
+INSERT INTO `movimiento` (`idMovimiento`, `movi_nom`, `movi_descripcion`, `movi_monto`, `movi_fecha`, `movi_tipo`, `movi_gasto`, `movi_cuenta`) VALUES
+(1, 'Pago almuerzo', 'mi pago', 10000, '2018-02-04', 1, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `presupuesto`
+--
+
+CREATE TABLE `presupuesto` (
+  `idPresupuesto` int(11) NOT NULL,
+  `presu_Nombre` varchar(20) NOT NULL,
+  `presu_Saldo` double NOT NULL,
+  `presu_monto` double NOT NULL,
+  `presu_Cuenta` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `presupuesto`
+--
+
+INSERT INTO `presupuesto` (`idPresupuesto`, `presu_Nombre`, `presu_Saldo`, `presu_monto`, `presu_Cuenta`) VALUES
+(1, 'Presupuesto1', 0, 0, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_cuenta`
+--
+
+CREATE TABLE `tipo_cuenta` (
+  `idcuenta_tipo` int(11) NOT NULL,
+  `tipo_cuenta` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `tipo_cuenta`
+--
+
+INSERT INTO `tipo_cuenta` (`idcuenta_tipo`, `tipo_cuenta`) VALUES
+(1, 'Gastos'),
+(2, 'Ahorros');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_meta`
+--
+
+CREATE TABLE `tipo_meta` (
+  `idtipo_meta` int(11) NOT NULL,
+  `tipo_meta` varchar(45) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `tipo_meta`
+--
+
+INSERT INTO `tipo_meta` (`idtipo_meta`, `tipo_meta`) VALUES
+(1, 'Largo'),
+(2, 'Mediano'),
+(3, 'Corto');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `tipo_movimiento`
+--
+
+CREATE TABLE `tipo_movimiento` (
+  `idtipo_movimiento` int(11) NOT NULL,
+  `tipo_movimiento` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `tipo_movimiento`
+--
+
+INSERT INTO `tipo_movimiento` (`idtipo_movimiento`, `tipo_movimiento`) VALUES
+(1, 'Transaccion'),
+(2, 'Ingresos'),
+(3, 'Transferencia');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `usuario`
+--
+
+CREATE TABLE `usuario` (
+  `idUsuario` int(11) NOT NULL,
+  `usu_Nombre` varchar(45) NOT NULL,
+  `usu_Apellido` varchar(45) NOT NULL,
+  `usu_Correo` varchar(45) NOT NULL,
+  `usu_Password` varchar(155) NOT NULL,
+  `usu_Sexo` char(1) NOT NULL,
+  `usu_FNA` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- Volcado de datos para la tabla `usuario`
+--
+
+INSERT INTO `usuario` (`idUsuario`, `usu_Nombre`, `usu_Apellido`, `usu_Correo`, `usu_Password`, `usu_Sexo`, `usu_FNA`) VALUES
+(1, 'Daniel', 'php', 'correo@correo.com', '123', 'M', '2018-02-13'),
+(3, 'Daniel', 'Apellido', 'correo@misfinanzas.com', '123', 'm', '2018-02-14'),
+(5, 'Laura', 'apellido', 'laura@correo.com', '202cb962ac59075b964b07152d234b70', 'F', '2018-02-17'),
+(6, 'User', 'User', 'miejemplo@ejemplo.com', '6116afedcb0bc31083935c1c262ff4c9', 'M', '2018-02-13'),
+(7, 'miregistro', 'registrando', 'correo@iniciar.com', '123', 'M', '2018-02-09'),
+(8, 'registro1', 'apellido', 'registro1@correo.com', '6116afedcb0bc31083935c1c262ff4c9', 'M', '2018-02-22'),
+(9, 'almacenado', 'almac', 'almag@correo.com', '123', 'M', '2019-09-09'),
+(10, 'almacenado1', 'mialmacenado', 'almac22@correo.com', '6116afedcb0bc31083935c1c262ff4c9', 'F', '2018-02-16');
+
+--
+-- Índices para tablas volcadas
+--
+
+--
+-- Indices de la tabla `categoria`
+--
+ALTER TABLE `categoria`
+  ADD PRIMARY KEY (`idCategoria`);
+
+--
+-- Indices de la tabla `cuenta`
+--
+ALTER TABLE `cuenta`
+  ADD PRIMARY KEY (`idCuenta`),
+  ADD UNIQUE KEY `idCuenta_UNIQUE` (`idCuenta`),
+  ADD KEY `fk_Cuenta_Usuario_idx` (`cuenta_usuario`),
+  ADD KEY `fk_Cuenta_tipo_cuenta1_idx` (`cuenta_tipo`);
+
+--
+-- Indices de la tabla `gasto`
+--
+ALTER TABLE `gasto`
+  ADD PRIMARY KEY (`idGasto`),
+  ADD KEY `fk_Gasto_Presupuesto1_idx` (`gasto_presupuesto`),
+  ADD KEY `fk_Gasto_Categoria1_idx` (`gasto_categoria`);
+
+--
+-- Indices de la tabla `metafinanciera`
+--
+ALTER TABLE `metafinanciera`
+  ADD PRIMARY KEY (`Idmetafinanciera`),
+  ADD KEY `fk_MetaFinanciera_Usuario1_idx` (`meta_usuario`),
+  ADD KEY `fk_MetaFinanciera_tipo_meta1_idx` (`meta_tipo`);
+
+--
+-- Indices de la tabla `movimiento`
+--
+ALTER TABLE `movimiento`
+  ADD PRIMARY KEY (`idMovimiento`),
+  ADD UNIQUE KEY `idMovimiento_UNIQUE` (`idMovimiento`),
+  ADD KEY `fk_Movimiento_tipo_movimiento1_idx` (`movi_tipo`),
+  ADD KEY `fk_Movimiento_Gasto1_idx` (`movi_gasto`),
+  ADD KEY `fk_Movimiento_Cuenta1_idx` (`movi_cuenta`);
+
+--
+-- Indices de la tabla `presupuesto`
+--
+ALTER TABLE `presupuesto`
+  ADD PRIMARY KEY (`idPresupuesto`),
+  ADD UNIQUE KEY `idPresupuesto_UNIQUE` (`idPresupuesto`),
+  ADD KEY `fk_Presupuesto_Cuenta1_idx` (`presu_Cuenta`);
+
+--
+-- Indices de la tabla `tipo_cuenta`
+--
+ALTER TABLE `tipo_cuenta`
+  ADD PRIMARY KEY (`idcuenta_tipo`);
+
+--
+-- Indices de la tabla `tipo_meta`
+--
+ALTER TABLE `tipo_meta`
+  ADD PRIMARY KEY (`idtipo_meta`);
+
+--
+-- Indices de la tabla `tipo_movimiento`
+--
+ALTER TABLE `tipo_movimiento`
+  ADD PRIMARY KEY (`idtipo_movimiento`),
+  ADD UNIQUE KEY `idtipo_movimiento_UNIQUE` (`idtipo_movimiento`);
+
+--
+-- Indices de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  ADD PRIMARY KEY (`idUsuario`),
+  ADD UNIQUE KEY `usu_Correo_UNIQUE` (`usu_Correo`),
+  ADD UNIQUE KEY `idUsuario_UNIQUE` (`idUsuario`);
+
+--
+-- AUTO_INCREMENT de las tablas volcadas
+--
+
+--
+-- AUTO_INCREMENT de la tabla `categoria`
+--
+ALTER TABLE `categoria`
+  MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT de la tabla `cuenta`
+--
+ALTER TABLE `cuenta`
+  MODIFY `idCuenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+--
+-- AUTO_INCREMENT de la tabla `gasto`
+--
+ALTER TABLE `gasto`
+  MODIFY `idGasto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT de la tabla `metafinanciera`
+--
+ALTER TABLE `metafinanciera`
+  MODIFY `Idmetafinanciera` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT de la tabla `movimiento`
+--
+ALTER TABLE `movimiento`
+  MODIFY `idMovimiento` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT de la tabla `presupuesto`
+--
+ALTER TABLE `presupuesto`
+  MODIFY `idPresupuesto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT de la tabla `tipo_cuenta`
+--
+ALTER TABLE `tipo_cuenta`
+  MODIFY `idcuenta_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT de la tabla `tipo_meta`
+--
+ALTER TABLE `tipo_meta`
+  MODIFY `idtipo_meta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT de la tabla `tipo_movimiento`
+--
+ALTER TABLE `tipo_movimiento`
+  MODIFY `idtipo_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+--
+-- AUTO_INCREMENT de la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+--
+-- Restricciones para tablas volcadas
+--
+
+--
+-- Filtros para la tabla `cuenta`
+--
+ALTER TABLE `cuenta`
+  ADD CONSTRAINT `fk_Cuenta_Usuario` FOREIGN KEY (`cuenta_usuario`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Cuenta_tipo_cuenta1` FOREIGN KEY (`cuenta_tipo`) REFERENCES `tipo_cuenta` (`idcuenta_tipo`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Filtros para la tabla `gasto`
+--
+ALTER TABLE `gasto`
+  ADD CONSTRAINT `fk_Gasto_Categoria1` FOREIGN KEY (`gasto_categoria`) REFERENCES `categoria` (`idCategoria`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Gasto_Presupuesto1` FOREIGN KEY (`gasto_presupuesto`) REFERENCES `presupuesto` (`idPresupuesto`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Filtros para la tabla `metafinanciera`
+--
+ALTER TABLE `metafinanciera`
+  ADD CONSTRAINT `fk_MetaFinanciera_Usuario1` FOREIGN KEY (`meta_usuario`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_MetaFinanciera_tipo_meta1` FOREIGN KEY (`meta_tipo`) REFERENCES `tipo_meta` (`idtipo_meta`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Filtros para la tabla `movimiento`
+--
+ALTER TABLE `movimiento`
+  ADD CONSTRAINT `fk_Movimiento_Cuenta1` FOREIGN KEY (`movi_cuenta`) REFERENCES `cuenta` (`idCuenta`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Movimiento_Gasto1` FOREIGN KEY (`movi_gasto`) REFERENCES `gasto` (`idGasto`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_Movimiento_tipo_movimiento1` FOREIGN KEY (`movi_tipo`) REFERENCES `tipo_movimiento` (`idtipo_movimiento`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Filtros para la tabla `presupuesto`
+--
+ALTER TABLE `presupuesto`
+  ADD CONSTRAINT `fk_Presupuesto_Cuenta1` FOREIGN KEY (`presu_Cuenta`) REFERENCES `cuenta` (`idCuenta`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
