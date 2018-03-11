@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.7.0
+-- version 4.7.4
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-03-2018 a las 19:51:31
--- Versión del servidor: 10.1.22-MariaDB
--- Versión de PHP: 7.1.4
+-- Tiempo de generación: 11-03-2018 a las 14:20:30
+-- Versión del servidor: 10.1.30-MariaDB
+-- Versión de PHP: 7.2.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -26,11 +26,42 @@ DELIMITER $$
 --
 -- Procedimientos
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertarUsuario` (IN `usu_Nombre` VARCHAR(45) CHARSET utf8, IN `usu_Apellido` VARCHAR(45) CHARSET utf8, IN `usu_Correo` VARCHAR(45) CHARSET utf8, IN `usu_Password` VARCHAR(155) CHARSET utf8, IN `usu_Sexo` CHAR(1) CHARSET utf8, IN `usu_FNA` DATE)  INSERT INTO usuario (usu_Nombre,usu_Apellido,usu_Correo,usu_Password,usu_Sexo,usu_FNA) VALUES (usu_Nombre,usu_Apellido,usu_Correo,usu_Password,usu_Sexo,usu_FNA)$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `costometa` ()  select sum(meta_costo)as costometa from metafinanciera$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCuenta` (IN `cuenta_nom` VARCHAR(11) CHARSET utf8, IN `cuenta_tipo` INT, IN `cuenta_usuario` INT, IN `cuenta_monto` DOUBLE, IN `cuenta_saldo` DOUBLE)  INSERT INTO `cuenta` (`cuenta_nom`, `cuenta_tipo`, `cuenta_usuario`, `cuenta_monto`, `cuenta_saldo`) VALUES (cuenta_nom,cuenta_tipo,cuenta_usuario,cuenta_monto,cuenta_saldo)$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Insertcategoria` (IN `categoria_tipo` VARCHAR(20) CHARSET utf8)  INSERT INTO `categoria` (`categoria_tipo`) VALUES (categoria_tipo)$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `JoinListerMeta` ()  SELECT meta_nom,tipo_meta.tipo_meta as 'Tipo Meta/Plazo',metafinanciera.meta_costo FROM metafinanciera inner join tipo_meta on metafinanciera.Idmetafinanciera=tipo_meta.idtipo_meta$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertCuenta` (IN `cuenta_nom` VARCHAR(20) CHARSET utf8, IN `cuenta_tipo` INT(11), IN `cuenta_usuario` INT(11), IN `cuenta_monto` DOUBLE, IN `cuenta_saldo` DOUBLE)  INSERT INTO `cuenta` ( `cuenta_nom`, `cuenta_tipo`, `cuenta_usuario`, `cuenta_monto`, `cuenta_saldo`) VALUES (cuenta_nom,cuenta_tipo,cuenta_usuario,cuenta_monto,cuenta_saldo)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertGasto` (IN `gasto_nombre` VARCHAR(11) CHARSET utf8, IN `gasto_presupuesto` INT(20), IN `gasto_categoria` INT(11), IN `gasto_descripcion` VARCHAR(200) CHARSET utf8)  INSERT INTO `gasto` ( `gasto_nombre`,`gasto_presupuesto`,
+`gasto_categoria`,gasto_descripcion) VALUES (gasto_nombre, gasto_presupuesto,gasto_categoria,gasto_descripcion)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMeta` (IN `meta_usuario` INT(11), IN `meta_nom` VARCHAR(20) CHARSET utf8, IN `meta_costo` DOUBLE, IN `meta_tipo` INT(11))  NO SQL
+    COMMENT 'Procedimiento para insertar una meta financiera.'
+INSERT INTO `metafinanciera` ( `meta_usuario`,`meta_nom`,  `meta_costo`,  `meta_tipo`) VALUES (meta_usuario,meta_nom,meta_costo,meta_tipo)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertPresupuesto` (IN `presu_Nombre` VARCHAR(20) CHARSET utf8, IN `presu_Cuenta` INT(11), IN `presu_monto` DOUBLE, IN `presu_Saldo` DOUBLE)  INSERT INTO `presupuesto` ( `presu_Nombre`, `presu_Cuenta`, `presu_monto`, `presu_Saldo`) VALUES (presu_Nombre, presu_Cuenta,presu_monto,presu_Saldo)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertUsuario` (IN `usu_Nombre` VARCHAR(45), IN `usu_Apellido` VARCHAR(45), IN `usu_Correo` VARCHAR(45), IN `usu_Password` VARCHAR(155), IN `usu_Sexo` CHAR(1), IN `usu_FNA` DATE)  INSERT INTO `usuario` (`usu_Nombre`, `usu_Apellido`, `usu_Correo`, `usu_Password`, `usu_Sexo`, `usu_FNA`) VALUES (usu_Nombre,usu_Apellido,usu_Correo,usu_Password,usu_Sexo, usu_FNA)$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarCategoria` ()  SELECT * FROM categoria$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarCuenta` ()  SELECT idcuenta_tipo,cuenta_nom,tipo_cuenta as cuenta_tipo,cuenta_monto, cuenta_saldo FROM cuenta join tipo_cuenta on cuenta_tipo=idCuenta_tipo$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarCuentatod` ()  SELECT * FROM cuenta$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarGasto` ()  SELECT * FROM `gasto`$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarMetaF` ()  SELECT * FROM metafinanciera$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarPresupuesto` ()  SELECT * FROM presupuesto$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listartcuenta` ()  SELECT * FROM tipo_cuenta$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `listarttmeta` ()  SELECT * FROM tipo_meta$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `nmetas` ()  select Count(Idmetafinanciera) as nmetas from metafinanciera$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `validarsesion` (IN `usu_Correo` VARCHAR(45), IN `usu_Password` VARCHAR(155))  SELECT * from usuario where usu_Correo=usu_Correo and usu_Password=usu_Password$$
 
 DELIMITER ;
 
@@ -65,20 +96,19 @@ INSERT INTO `categoria` (`idCategoria`, `categoria_tipo`, `categoria_icon`) VALU
 CREATE TABLE `cuenta` (
   `idCuenta` int(11) NOT NULL,
   `cuenta_nom` varchar(20) NOT NULL,
-  `cuenta_tipo` int(11) NOT NULL,
-  `cuenta_usuario` int(11) NOT NULL,
+  `cuenta_saldo` double NOT NULL,
   `cuenta_monto` double NOT NULL,
-  `cuenta_saldo` double NOT NULL
+  `cuenta_usuario` int(11) NOT NULL,
+  `cuenta_tipo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `cuenta`
 --
 
-INSERT INTO `cuenta` (`idCuenta`, `cuenta_nom`, `cuenta_tipo`, `cuenta_usuario`, `cuenta_monto`, `cuenta_saldo`) VALUES
-(1, 'Disponible', 1, 1, 0, 0),
-(3, 'Ahorros', 2, 8, 2000, 2000),
-(4, 'Ahorros2', 2, 1, 6000, 6000);
+INSERT INTO `cuenta` (`idCuenta`, `cuenta_nom`, `cuenta_saldo`, `cuenta_monto`, `cuenta_usuario`, `cuenta_tipo`) VALUES
+(1, 'Disponible', 0, 0, 1, 1),
+(2, 'Ahorros', 0, 0, 1, 2);
 
 -- --------------------------------------------------------
 
@@ -251,14 +281,7 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`idUsuario`, `usu_Nombre`, `usu_Apellido`, `usu_Correo`, `usu_Password`, `usu_Sexo`, `usu_FNA`) VALUES
-(1, 'Daniel', 'php', 'correo@correo.com', '123', 'M', '2018-02-13'),
-(3, 'Daniel', 'Apellido', 'correo@misfinanzas.com', '123', 'm', '2018-02-14'),
-(5, 'Laura', 'apellido', 'laura@correo.com', '202cb962ac59075b964b07152d234b70', 'F', '2018-02-17'),
-(6, 'User', 'User', 'miejemplo@ejemplo.com', '6116afedcb0bc31083935c1c262ff4c9', 'M', '2018-02-13'),
-(7, 'miregistro', 'registrando', 'correo@iniciar.com', '123', 'M', '2018-02-09'),
-(8, 'registro1', 'apellido', 'registro1@correo.com', '6116afedcb0bc31083935c1c262ff4c9', 'M', '2018-02-22'),
-(9, 'almacenado', 'almac', 'almag@correo.com', '123', 'M', '2019-09-09'),
-(10, 'almacenado1', 'mialmacenado', 'almac22@correo.com', '6116afedcb0bc31083935c1c262ff4c9', 'F', '2018-02-16');
+(1, 'user', 'php', 'correo@correo.com', '12345678', 'M', '2018-02-13');
 
 --
 -- Índices para tablas volcadas
@@ -349,51 +372,61 @@ ALTER TABLE `usuario`
 --
 ALTER TABLE `categoria`
   MODIFY `idCategoria` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
 --
 -- AUTO_INCREMENT de la tabla `cuenta`
 --
 ALTER TABLE `cuenta`
-  MODIFY `idCuenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `idCuenta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
 --
 -- AUTO_INCREMENT de la tabla `gasto`
 --
 ALTER TABLE `gasto`
   MODIFY `idGasto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT de la tabla `metafinanciera`
 --
 ALTER TABLE `metafinanciera`
   MODIFY `Idmetafinanciera` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT de la tabla `movimiento`
 --
 ALTER TABLE `movimiento`
   MODIFY `idMovimiento` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT de la tabla `presupuesto`
 --
 ALTER TABLE `presupuesto`
   MODIFY `idPresupuesto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- AUTO_INCREMENT de la tabla `tipo_cuenta`
 --
 ALTER TABLE `tipo_cuenta`
   MODIFY `idcuenta_tipo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
 --
 -- AUTO_INCREMENT de la tabla `tipo_meta`
 --
 ALTER TABLE `tipo_meta`
   MODIFY `idtipo_meta` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
 --
 -- AUTO_INCREMENT de la tabla `tipo_movimiento`
 --
 ALTER TABLE `tipo_movimiento`
   MODIFY `idtipo_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
 --
 -- AUTO_INCREMENT de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
 --
 -- Restricciones para tablas volcadas
 --
